@@ -1,0 +1,63 @@
+---
+- name: Ansible Loop Demo
+  hosts: vm
+  become: true
+  gather_facts: false
+  vars: 
+    fruits:
+      - Apple
+      - Cherry
+    colors:
+      - Blue
+
+  tasks:
+    - name: Loop with items (basic loop)
+      when: item in fruits
+      debug:
+        msg: "Fruit: {{ item }}"
+      with_items:
+        - Apple
+        - Banana
+        - Cherry
+
+    - name: Loop using 'loop' (modern style)
+      when: item in colors
+      debug:
+        msg: "Color: {{ item }}"
+      loop:
+        - Red
+        - Green
+        - Blue
+
+    - name: Loop with dictionary
+      debug:
+        msg: "Key is {{ item.key }}, Value is {{ item.value }}"
+      with_dict:
+        name: Patrick
+        city: Gotham
+        hobby: Coding
+
+    - name: Using 'until' loop with a command (runs until success or timeout)
+      command: /bin/true
+      register: result
+      retries: 3
+      delay: 2
+      until: result.rc == 0
+
+    - name: Create temporary files as loop output
+      file:
+        path: "/tmp/{{ item }}.tmp"
+        state: touch
+      loop:
+        - one
+        - two
+        - three
+
+    - name: Clean up temporary files
+      file:
+        path: "/tmp/{{ item }}.tmp"
+        state: absent
+      loop:
+        - one
+        - two
+        - three
