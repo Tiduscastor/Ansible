@@ -1,0 +1,22 @@
+---
+- name: Create new user on vm
+  hosts: vm
+  become: true
+  gather_facts: false
+  vars:
+  tasks:
+    - name: Create new user
+      ansible.builtin.user:
+        name: tony
+        state: present
+        create_home: true
+        password: "{{ 'admin' | password_hash('sha512') }}"
+
+    - name: Check if user exists
+      ansible.builtin.shell: id tony
+      register: user_check
+      ignore_errors: yes
+
+    - name: Show result
+      ansible.builtin.debug:
+        var: user_check.stdout
